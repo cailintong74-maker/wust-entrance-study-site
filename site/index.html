@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WUST 入学考试学习站</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Wrocław University of Science and Technology</p>
+      <h1>本科入学数学与逻辑备考</h1>
+    </div>
+    <div class="countdown" aria-label="exam countdown">
+      <span id="countdownDays">--</span>
+      <small>days to exam</small>
+    </div>
+  </header>
+
+  <nav class="mode-tabs" aria-label="main modes">
+    <button class="mode-tab active" data-mode="study">学习</button>
+    <button class="mode-tab" data-mode="exam">考试模式</button>
+    <button class="mode-tab" data-mode="knowledge">知识库</button>
+    <button class="mode-tab" data-mode="analysis">弱项分析</button>
+  </nav>
+
+  <main>
+    <section id="studyView" class="view active">
+      <div class="toolbar">
+        <label>
+          主题
+          <select id="topicFilter"></select>
+        </label>
+        <label>
+          难度
+          <select id="difficultyFilter">
+            <option value="all">全部</option>
+            <option value="Basic">基础</option>
+            <option value="Medium">中等</option>
+            <option value="Stretch">略高</option>
+          </select>
+        </label>
+        <label class="search">
+          搜索
+          <input id="searchInput" type="search" placeholder="English term / 中文关键词">
+        </label>
+      </div>
+      <div class="summary-row">
+        <span id="studyCount">0 questions</span>
+        <span id="progressSummary">0 completed</span>
+      </div>
+      <div id="questionList" class="question-list"></div>
+    </section>
+
+    <section id="examView" class="view">
+      <div id="examIntro" class="panel">
+        <h2>考试模式</h2>
+        <p>模拟学校线上测试：10 道开放题，90 分钟，只显示英文题。提交后才显示中文题目和详细解析。</p>
+        <div class="exam-actions">
+          <button id="startExamBtn" class="primary">开始 90 分钟模拟考试</button>
+          <button id="resumeExamBtn">继续未提交考试</button>
+        </div>
+      </div>
+
+      <div id="examActive" class="exam-shell hidden">
+        <div class="exam-header">
+          <div>
+            <p class="eyebrow">Exam Mode</p>
+            <h2>WUST Mock Test</h2>
+          </div>
+          <div class="timer" id="examTimer">90:00</div>
+          <button id="submitExamBtn" class="primary">提交</button>
+        </div>
+        <div id="examQuestions" class="question-list"></div>
+      </div>
+
+      <div id="examResults" class="hidden"></div>
+    </section>
+
+    <section id="knowledgeView" class="view">
+      <div class="toolbar">
+        <label>
+          知识库主题
+          <select id="knowledgeTopic"></select>
+        </label>
+        <label>
+          阅读模式
+          <select id="knowledgeMode">
+            <option value="full">教材式详解</option>
+            <option value="terms">只看术语</option>
+            <option value="mistakes">只看易错点</option>
+          </select>
+        </label>
+      </div>
+      <div id="knowledgeList" class="knowledge-grid"></div>
+    </section>
+
+    <section id="analysisView" class="view">
+      <div class="panel">
+        <h2>弱项分析与提高方案</h2>
+        <p>完成考试模式并自评每题后，这里会按主题、难度和空题情况自动生成弱项诊断。</p>
+      </div>
+      <div id="analysisPanel"></div>
+    </section>
+  </main>
+
+  <div id="translator" class="translator hidden" role="status"></div>
+
+  <script src="data/questions.js"></script>
+  <script src="data/knowledge.js"></script>
+  <script src="data/glossary.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
