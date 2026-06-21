@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import random
 from datetime import date
 from pathlib import Path
 
@@ -69,6 +68,27 @@ def to_sup(num: int) -> str:
     return str(num).translate(str.maketrans("0123456789", "⁰¹²³⁴⁵⁶⁷⁸⁹"))
 
 
+class DailySelector:
+    def __init__(self, run_date: str):
+        self.day = date.fromisoformat(run_date).toordinal()
+        self.counter = 0
+
+    def choice(self, values):
+        if not values:
+            raise ValueError("Cannot choose from an empty sequence")
+        index = (self.day + self.counter) % len(values)
+        self.counter += 1
+        return values[index]
+
+    def sample(self, values, count: int):
+        if count > len(values):
+            raise ValueError("Sample size exceeds population")
+        start = (self.day + self.counter) % len(values)
+        self.counter += 1
+        rotated = list(values)[start:] + list(values)[:start]
+        return rotated[:count]
+
+
 def apply_daily_instructions(questions: list[dict], run_date: str) -> None:
     day = date.fromisoformat(run_date).toordinal()
     instructions = [
@@ -84,7 +104,7 @@ def apply_daily_instructions(questions: list[dict], run_date: str) -> None:
 
 
 def generate(run_date: str) -> list[dict]:
-    rng = random.Random(run_date)
+    rng = DailySelector(run_date)
     q = []
     n = 1
 
