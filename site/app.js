@@ -6,6 +6,7 @@ const examKey = "wust-exam-session-v1";
 const questions = window.WUST_QUESTIONS || [];
 const knowledge = window.WUST_KNOWLEDGE || [];
 const glossary = window.WUST_GLOSSARY || {};
+const questionSetDate = window.WUST_QUESTION_SET_DATE || "initial";
 mergeKnowledgeTermsIntoGlossary();
 
 let state = loadState();
@@ -97,7 +98,7 @@ function renderStudy() {
   const list = filteredQuestions();
   $("studyCount").textContent = `${list.length} questions`;
   const completed = questions.filter(q => state.completed[q.n]).length;
-  $("progressSummary").textContent = `${completed}/60 completed`;
+  $("progressSummary").textContent = `${completed}/60 completed · 题库日期 ${questionSetDate}`;
   $("questionList").innerHTML = list.map(q => questionCard(q)).join("");
   bindStudyCards();
 }
