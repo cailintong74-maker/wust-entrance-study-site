@@ -212,10 +212,10 @@ def generate(run_date: str) -> list[dict]:
     union = sorted(set(evens) | set(mult3))
     comp = [x for x in range(1, upper + 1) if x not in evens]
     q.append(item(n, topic, "Set operations", "集合运算",
-        f"Let U = {{1,2,...,{upper}}}, A = {{x ∈ U : x is even}}, and B = {{x ∈ U : x is divisible by 3}}. Find A ∩ B, A ∪ B, and U ∖ A.",
-        f"设 U = {{1,2,...,{upper}}}，A = {{x ∈ U : x 为偶数}}，B = {{x ∈ U : x 能被 3 整除}}。求 A ∩ B、A ∪ B 和 U ∖ A。",
-        f"A = {fmt_set(evens)}, B = {fmt_set(mult3)}. Therefore A ∩ B = {fmt_set(inter)}, A ∪ B = {fmt_set(union)}, and U ∖ A = {fmt_set(comp)}.",
-        f"A = {fmt_set(evens)}，B = {fmt_set(mult3)}。所以 A ∩ B = {fmt_set(inter)}，A ∪ B = {fmt_set(union)}，U ∖ A = {fmt_set(comp)}。",
+        f"Let U = {{1,2,...,{upper}}}, A = {{x ∈ U : x is even}}, and B = {{x ∈ U : x is divisible by 3}}. Find A ∩ B, A ∪ B, and U ∖ A. Also decide whether A ∩ B ⊂ A ∪ B.",
+        f"设 U = {{1,2,...,{upper}}}，A = {{x ∈ U : x 为偶数}}，B = {{x ∈ U : x 能被 3 整除}}。求 A ∩ B、A ∪ B 和 U ∖ A，并判断 A ∩ B ⊂ A ∪ B 是否成立。",
+        f"A = {fmt_set(evens)}, B = {fmt_set(mult3)}. Therefore A ∩ B = {fmt_set(inter)}, A ∪ B = {fmt_set(union)}, and U ∖ A = {fmt_set(comp)}. Since every element of A ∩ B also belongs to A ∪ B, A ∩ B ⊂ A ∪ B.",
+        f"A = {fmt_set(evens)}，B = {fmt_set(mult3)}。所以 A ∩ B = {fmt_set(inter)}，A ∪ B = {fmt_set(union)}，U ∖ A = {fmt_set(comp)}。因为 A ∩ B 的每个元素也属于 A ∪ B，所以 A ∩ B ⊂ A ∪ B。",
         6, "Medium", "中等")); n += 1
     roots = rng.sample([1, 2, 3, 4, 5], 2)
     s, p = sum(roots), roots[0] * roots[1]
