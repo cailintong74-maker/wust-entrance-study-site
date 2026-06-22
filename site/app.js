@@ -24,6 +24,19 @@ function saveState() {
   localStorage.setItem(storeKey, JSON.stringify(state));
 }
 
+function completedKey(questionId) {
+  return `${questionSetDate}:${questionId}`;
+}
+
+function isCompleted(questionId) {
+  return !!state.completed[completedKey(questionId)];
+}
+
+function toggleCompleted(questionId) {
+  const key = completedKey(questionId);
+  state.completed[key] = !state.completed[key];
+}
+
 function $(id) {
   return document.getElementById(id);
 }
@@ -97,14 +110,14 @@ function filteredQuestions() {
 function renderStudy() {
   const list = filteredQuestions();
   $("studyCount").textContent = `${list.length} questions`;
-  const completed = questions.filter(q => state.completed[q.n]).length;
+  const completed = questions.filter(q => isCompleted(q.n)).length;
   $("progressSummary").textContent = `${completed}/60 completed · 题库日期 ${questionSetDate}`;
   $("questionList").innerHTML = list.map(q => questionCard(q)).join("");
   bindStudyCards();
 }
 
 function questionCard(q) {
-  const isDone = !!state.completed[q.n];
+  const isDone = isCompleted(q.n);
   const isStarred = !!state.starred[q.n];
   const isWeak = !!state.weak[q.n];
   return `
@@ -143,7 +156,7 @@ function bindStudyCards() {
       const action = btn.dataset.action;
       if (action === "toggle-cn") card.querySelector(".cn-block").classList.toggle("hidden");
       if (action === "toggle-solution") card.querySelector(".solution-block").classList.toggle("hidden");
-      if (action === "complete") state.completed[id] = !state.completed[id];
+      if (action === "complete") toggleCompleted(id);
       if (action === "star") state.starred[id] = !state.starred[id];
       if (action === "weak") state.weak[id] = !state.weak[id];
       saveState();
