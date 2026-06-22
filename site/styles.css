@@ -119,6 +119,10 @@ main {
   margin-bottom: 12px;
 }
 
+.archive-toolbar {
+  grid-template-columns: 180px 240px minmax(220px, 1fr);
+}
+
 label {
   display: grid;
   gap: 5px;
@@ -158,6 +162,10 @@ textarea {
   border-radius: 8px;
   padding: 16px;
   box-shadow: var(--shadow);
+}
+
+.archive-card {
+  box-shadow: none;
 }
 
 .card-head {

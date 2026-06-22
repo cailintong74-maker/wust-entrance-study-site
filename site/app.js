@@ -4,6 +4,7 @@ const storeKey = "wust-study-state-v1";
 const examKey = "wust-exam-session-v1";
 
 const questions = window.WUST_QUESTIONS || [];
+const archive = window.WUST_QUESTION_ARCHIVE || {};
 const knowledge = window.WUST_KNOWLEDGE || [];
 const glossary = window.WUST_GLOSSARY || {};
 const questionSetDate = window.WUST_QUESTION_SET_DATE || "initial";
@@ -53,9 +54,11 @@ function init() {
   updateCountdown();
   setupTabs();
   setupFilters();
+  setupArchive();
   setupExam();
   setupTranslator();
   renderStudy();
+  renderArchive();
   renderKnowledge();
   renderAnalysis();
 }
@@ -95,6 +98,39 @@ function setupFilters() {
   $("knowledgeMode").addEventListener("change", renderKnowledge);
 }
 
+function setupArchive() {
+  const archiveDate = $("archiveDate");
+  const dates = archiveDates();
+  archiveDate.innerHTML = dates.length
+    ? dates.map(date => `<option value="${escapeHtml(date)}">${escapeHtml(date)}</option>`).join("")
+    : `<option value="">暂无历史题库</option>`;
+  archiveDate.addEventListener("change", () => {
+    populateArchiveTopics();
+    renderArchive();
+  });
+  $("archiveTopic").addEventListener("change", renderArchive);
+  $("archiveSearch").addEventListener("input", renderArchive);
+  populateArchiveTopics();
+}
+
+function archiveDates() {
+  return Object.keys(archive).sort().reverse();
+}
+
+function selectedArchiveQuestions() {
+  const date = $("archiveDate").value;
+  return archive[date] || [];
+}
+
+function populateArchiveTopics() {
+  const topicSelect = $("archiveTopic");
+  const list = selectedArchiveQuestions();
+  const topics = [...new Map(list.map(q => [q.topic_en, q.topic_cn])).entries()];
+  topicSelect.innerHTML = `<option value="all">全部主题</option>` + topics.map(([en, cn]) => (
+    `<option value="${escapeHtml(en)}">${escapeHtml(cn)} / ${escapeHtml(en)}</option>`
+  )).join("");
+}
+
 function filteredQuestions() {
   const topic = $("topicFilter").value;
   const diff = $("difficultyFilter").value;
@@ -107,6 +143,16 @@ function filteredQuestions() {
   });
 }
 
+function filteredArchiveQuestions() {
+  const topic = $("archiveTopic").value;
+  const query = normalize($("archiveSearch").value);
+  return selectedArchiveQuestions().filter(q => {
+    if (topic !== "all" && q.topic_en !== topic) return false;
+    if (!query) return true;
+    return normalize(`${q.title_en} ${q.title_cn} ${q.q_en} ${q.q_cn} ${q.topic_en} ${q.topic_cn}`).includes(query);
+  });
+}
+
 function renderStudy() {
   const list = filteredQuestions();
   $("studyCount").textContent = `${list.length} questions`;
@@ -114,6 +160,22 @@ function renderStudy() {
   $("progressSummary").textContent = `${completed}/60 completed · 题库日期 ${questionSetDate}`;
   $("questionList").innerHTML = list.map(q => questionCard(q)).join("");
   bindStudyCards();
+}
+
+function renderArchive() {
+  const dates = archiveDates();
+  if (!dates.length) {
+    $("archiveCount").textContent = "0 questions";
+    $("archiveSummary").textContent = "暂无历史题库";
+    $("archiveList").innerHTML = `<div class="panel"><p>还没有归档题库。每日自动更新后会在这里保存旧题。</p></div>`;
+    return;
+  }
+  const date = $("archiveDate").value || dates[0];
+  const list = filteredArchiveQuestions();
+  $("archiveCount").textContent = `${list.length} questions`;
+  $("archiveSummary").textContent = `当前查看 ${date}`;
+  $("archiveList").innerHTML = list.map(archiveQuestionCard).join("");
+  bindArchiveCards();
 }
 
 function questionCard(q) {
@@ -148,6 +210,30 @@ function questionCard(q) {
   `;
 }
 
+function archiveQuestionCard(q) {
+  return `
+    <article class="card archive-card" data-archive-q="${q.n}">
+      <div class="card-head">
+        <div>
+          <h3>${q.n}. ${escapeHtml(q.title_en)} / ${escapeHtml(q.title_cn)}</h3>
+          <div class="badges">
+            <span class="badge blue">${escapeHtml(q.topic_cn)}</span>
+            <span class="badge">${q.points} points</span>
+            <span class="badge ${q.diff_en === "Stretch" ? "amber" : ""}">${escapeHtml(q.diff_cn)}</span>
+          </div>
+        </div>
+      </div>
+      <div class="question-text">${formatText(q.q_en)}</div>
+      <div class="cn-block hidden">${formatText(q.q_cn)}</div>
+      <div class="solution-block hidden"><strong>Step-by-step Solution / 详细解析</strong><br>${formatText(q.s_en)}<br><br>${formatText(q.s_cn)}</div>
+      <div class="card-actions">
+        <button data-action="toggle-cn">中文题目</button>
+        <button data-action="toggle-solution">解析</button>
+      </div>
+    </article>
+  `;
+}
+
 function bindStudyCards() {
   document.querySelectorAll("[data-q] .card-actions button").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -161,6 +247,17 @@ function bindStudyCards() {
       if (action === "weak") state.weak[id] = !state.weak[id];
       saveState();
       if (!action.startsWith("toggle")) renderStudy();
+    });
+  });
+}
+
+function bindArchiveCards() {
+  document.querySelectorAll("[data-archive-q] .card-actions button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const card = btn.closest("[data-archive-q]");
+      const action = btn.dataset.action;
+      if (action === "toggle-cn") card.querySelector(".cn-block").classList.toggle("hidden");
+      if (action === "toggle-solution") card.querySelector(".solution-block").classList.toggle("hidden");
     });
   });
 }

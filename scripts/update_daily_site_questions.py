@@ -554,14 +554,37 @@ def write_questions(path: Path, questions: list[dict], run_date: str) -> None:
     )
 
 
+def read_archive(path: Path) -> dict:
+    if not path.exists():
+        return {}
+    text = path.read_text(encoding="utf-8").strip()
+    prefix = "window.WUST_QUESTION_ARCHIVE = "
+    if not text.startswith(prefix):
+        raise ValueError(f"Archive file has unexpected format: {path}")
+    payload = text[len(prefix):]
+    if payload.endswith(";"):
+        payload = payload[:-1]
+    return json.loads(payload)
+
+
+def write_archive(path: Path, questions: list[dict], run_date: str) -> None:
+    archive = read_archive(path)
+    archive[run_date] = questions
+    ordered = {key: archive[key] for key in sorted(archive.keys(), reverse=True)}
+    payload = json.dumps(ordered, ensure_ascii=False, indent=2)
+    path.write_text(f"window.WUST_QUESTION_ARCHIVE = {payload};\n", encoding="utf-8")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--date", required=True)
     parser.add_argument("--site-questions", default="site/data/questions.js")
+    parser.add_argument("--archive", default="site/data/archive.js")
     args = parser.parse_args()
     questions = generate(args.date)
     validate(questions)
     write_questions(Path(args.site_questions), questions, args.date)
+    write_archive(Path(args.archive), questions, args.date)
     print(f"Updated {args.site_questions} for {args.date}")
 
 

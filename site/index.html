@@ -21,6 +21,7 @@
   <nav class="mode-tabs" aria-label="main modes">
     <button class="mode-tab active" data-mode="study">学习</button>
     <button class="mode-tab" data-mode="exam">考试模式</button>
+    <button class="mode-tab" data-mode="archive">历史题库</button>
     <button class="mode-tab" data-mode="knowledge">知识库</button>
     <button class="mode-tab" data-mode="analysis">弱项分析</button>
   </nav>
@@ -78,6 +79,28 @@
       <div id="examResults" class="hidden"></div>
     </section>
 
+    <section id="archiveView" class="view">
+      <div class="toolbar archive-toolbar">
+        <label>
+          日期
+          <select id="archiveDate"></select>
+        </label>
+        <label>
+          主题
+          <select id="archiveTopic"></select>
+        </label>
+        <label class="search">
+          搜索
+          <input id="archiveSearch" type="search" placeholder="英文术语 / 中文关键词">
+        </label>
+      </div>
+      <div class="summary-row">
+        <span id="archiveCount">0 questions</span>
+        <span id="archiveSummary">历史题库</span>
+      </div>
+      <div id="archiveList" class="question-list"></div>
+    </section>
+
     <section id="knowledgeView" class="view">
       <div class="toolbar">
         <label>
@@ -108,6 +131,7 @@
   <div id="translator" class="translator hidden" role="status"></div>
 
   <script src="data/questions.js"></script>
+  <script src="data/archive.js"></script>
   <script src="data/knowledge.js"></script>
   <script src="data/glossary.js"></script>
   <script src="app.js"></script>

@@ -7,7 +7,7 @@ RUN_DATE="${1:-$(date +%F)}"
 
 python3 scripts/update_daily_site_questions.py --date "$RUN_DATE"
 
-git add site/data/questions.js
+git add site/data/questions.js site/data/archive.js
 
 if git diff --cached --quiet; then
   echo "No website question changes for $RUN_DATE"
