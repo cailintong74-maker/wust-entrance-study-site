@@ -103,6 +103,83 @@ def apply_daily_instructions(questions: list[dict], run_date: str) -> None:
         row["q_cn"] = f"{row['q_cn']} {cn}"
 
 
+TYPE_VARIANTS = {
+    "Mathematical Logic and Basic Set Theory": [
+        ("Give a counterexample if a statement is false.", "若命题为假，请给出反例。"),
+        ("Write the final answer using symbolic notation.", "最后用数学符号写出结论。"),
+        ("Explain the reason in one complete sentence.", "用一句完整的话说明理由。"),
+    ],
+    "Real Numbers": [
+        ("Keep radicals in simplified exact form.", "根式结果保留最简精确形式。"),
+        ("State why the transformations preserve equality or order.", "说明变形为什么保持等式或大小关系。"),
+        ("Check the domain or positivity condition before the final step.", "最后一步前检查定义域或正数条件。"),
+    ],
+    "Algebraic Expressions": [
+        ("Show the factorisation or identity used.", "写出所用因式分解或乘法公式。"),
+        ("Verify the result by expanding the final expression.", "将最终结果展开验算。"),
+        ("Mention any excluded value if a fraction is simplified.", "若化简分式，请说明被排除的取值。"),
+    ],
+    "Equations, Inequalities, and Systems": [
+        ("Give the solution set notation.", "用解集形式写出答案。"),
+        ("Check the candidate solutions in the original equation.", "把候选解代回原方程检验。"),
+        ("Mark excluded values before solving.", "先标出需要排除的取值。"),
+    ],
+    "Functions": [
+        ("State the feature of the graph used in your reasoning.", "说明你使用了图像的哪个特征。"),
+        ("Give both the formula and the requested numerical value.", "同时写出函数表达式和所求数值。"),
+        ("Justify where the maximum or minimum is reached.", "说明最大值或最小值在哪里取得。"),
+    ],
+    "Sequences": [
+        ("Identify whether the sequence is arithmetic, geometric, or recursive.", "先判断数列是等差、等比还是递推。"),
+        ("Write the term formula or recurrence before substituting numbers.", "先写通项公式或递推式，再代入数值。"),
+        ("State clearly which term or sum is being found.", "明确写出要求的是第几项或哪一段和。"),
+    ],
+    "Trigonometry": [
+        ("Use exact trigonometric values, not decimal approximations.", "使用精确三角函数值，不用小数近似。"),
+        ("Draw or describe the relevant triangle relation.", "画出或描述相关三角形关系。"),
+        ("State the angle range when giving solutions.", "给出解时说明角的范围。"),
+    ],
+    "Planar Geometry": [
+        ("Name the theorem used.", "写出所用定理名称。"),
+        ("Show why the relevant triangles are right, similar, or congruent.", "说明相关三角形为什么是直角、相似或全等。"),
+        ("Include units in the final answer where appropriate.", "有单位时在最终答案中写明单位。"),
+    ],
+    "Analytic Geometry on the Cartesian Plane": [
+        ("Write the coordinate formula before substituting.", "先写坐标公式，再代入。"),
+        ("Give the final line or circle equation in standard form.", "将直线或圆方程写成标准形式。"),
+        ("Check the sign change caused by reflection or perpendicularity.", "检查对称或垂直导致的符号变化。"),
+    ],
+    "Solid Geometry": [
+        ("State whether the answer is a length, area, or volume.", "说明答案是长度、面积还是体积。"),
+        ("Keep π in the exact answer.", "答案中保留 π 的精确形式。"),
+        ("Explain how the scale factor changes volume or area.", "说明相似比如何影响体积或面积。"),
+    ],
+    "Combinatorics and Probability": [
+        ("State whether order matters.", "说明是否考虑顺序。"),
+        ("Write the sample-space size and favourable cases.", "写出总情况数和有利情况数。"),
+        ("Simplify the final probability or count.", "化简最终概率或计数结果。"),
+    ],
+    "Statistics": [
+        ("Show the total sum and the number of data values.", "写出总和与数据个数。"),
+        ("Sort the data before finding the median or mode.", "求中位数或众数前先排序。"),
+        ("Write the weighted-mean equation explicitly.", "明确写出加权平均数方程。"),
+    ],
+}
+
+
+def apply_type_variants(questions: list[dict], run_date: str) -> None:
+    day = date.fromisoformat(run_date).toordinal()
+    for row in questions:
+        variants = TYPE_VARIANTS.get(row["topic_en"], [])
+        if not variants:
+            continue
+        en, cn = variants[(day + row["n"]) % len(variants)]
+        row["title_en"] = f"{row['title_en']} - Variant {((day + row['n']) % len(variants)) + 1}"
+        row["title_cn"] = f"{row['title_cn']}（变式 {((day + row['n']) % len(variants)) + 1}）"
+        row["q_en"] = f"{row['q_en']} {en}"
+        row["q_cn"] = f"{row['q_cn']} {cn}"
+
+
 def generate(run_date: str) -> list[dict]:
     rng = DailySelector(run_date)
     q = []
@@ -377,6 +454,7 @@ def generate(run_date: str) -> list[dict]:
     # 7-12 from stable template variants
     n = add_geometry_probability_statistics(q, n, rng)
     assert n == 61
+    apply_type_variants(q, run_date)
     apply_daily_instructions(q, run_date)
     return q
 
