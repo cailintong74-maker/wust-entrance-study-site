@@ -267,11 +267,23 @@ def generate(run_date: str) -> list[dict]:
         f"定义域为 x > {shift}。由 x − {shift} = {base}{to_sup(ans)} = {base**ans}，得 x = {val}。",
         6, "Medium", "中等")); n += 1
     u, v, w, verdict = rng.choice([(11, 2, 18, ">"), (7, 5, 27, "<"), (13, 3, 32, "<")])
+    squared_left_constant = u + v
+    required_bound = abs(w - squared_left_constant)
+    comparison_reason_en = (
+        f"because (2√{u*v})² = {4*u*v} > {required_bound}² = {required_bound**2}"
+        if verdict == ">"
+        else f"because (2√{u*v})² = {4*u*v} < {required_bound}² = {required_bound**2}"
+    )
+    comparison_reason_cn = (
+        f"因为 (2√{u*v})² = {4*u*v} > {required_bound}² = {required_bound**2}"
+        if verdict == ">"
+        else f"因为 (2√{u*v})² = {4*u*v} < {required_bound}² = {required_bound**2}"
+    )
     q.append(item(n, topic, "Exact comparison", "精确比较",
         f"Without decimals, compare √{u} + √{v} and √{w}.",
         f"不用小数，比较 √{u} + √{v} 与 √{w} 的大小。",
-        f"Both sides are positive. Squaring gives (√{u}+√{v})² = {u+v} + 2√{u*v}. This is {verdict} {w}, so √{u}+√{v} {verdict} √{w}.",
-        f"两边均为正。平方得 (√{u}+√{v})² = {u+v} + 2√{u*v}。它 {verdict} {w}，所以 √{u}+√{v} {verdict} √{w}。",
+        f"Both sides are positive, so comparing squares is valid. (√{u}+√{v})² = {u+v} + 2√{u*v}, while (√{w})² = {w}. Also {comparison_reason_en}. Hence {u+v} + 2√{u*v} {verdict} {w}, so √{u}+√{v} {verdict} √{w}.",
+        f"两边均为正，因此可以比较平方。(√{u}+√{v})² = {u+v} + 2√{u*v}，而 (√{w})² = {w}。并且{comparison_reason_cn}。所以 {u+v} + 2√{u*v} {verdict} {w}，即 √{u}+√{v} {verdict} √{w}。",
         6, "Medium", "中等")); n += 1
     m = rng.choice([2, 3, 4])
     q.append(item(n, topic, "Mixed exact simplification", "综合精确化简",
@@ -502,8 +514,8 @@ def add_geometry_probability_statistics(q: list[dict], n: int, rng: random.Rando
     else:
         proof_q_en = "In a parallelogram ABCD, prove that the diagonals bisect each other."
         proof_q_cn = "在平行四边形 ABCD 中，证明两条对角线互相平分。"
-        proof_s_en = "Let diagonals meet at O. Parallel sides give equal alternate interior angles, so triangles AOB and COD are congruent. Hence AO=OC and BO=OD."
-        proof_s_cn = "设对角线交于 O。由平行边得内错角相等，三角形 AOB 与 COD 全等，所以 AO=OC，BO=OD。"
+        proof_s_en = "Let diagonals AC and BD meet at O. Since AB ∥ CD, ∠ABO=∠CDO and ∠BAO=∠DCO. Also AB=CD for opposite sides of a parallelogram. Thus triangles AOB and COD are congruent by ASA, so AO=OC and BO=OD."
+        proof_s_cn = "设对角线 AC、BD 交于 O。因为 AB ∥ CD，所以 ∠ABO=∠CDO，∠BAO=∠DCO。又平行四边形对边相等，AB=CD。由 ASA 可得三角形 AOB 与 COD 全等，所以 AO=OC，BO=OD。"
     q.extend([
         item(n, topic, "Pythagorean theorem", "勾股定理", f"A rectangle has one side {rect_side} cm and diagonal {rect_diag} cm. Find the other side.", f"矩形一边为 {rect_side} cm，对角线为 {rect_diag} cm。求另一边。", f"The other side is √({rect_diag}²−{rect_side}²)={rect_other} cm.", f"另一边为 √({rect_diag}²−{rect_side}²)={rect_other} cm。", 4, "Basic", "基础"),
         item(n+1, topic, "Circle tangent", "圆与切线", f"Point P is {op} cm from the centre O of a circle of radius {radius} cm. PT is tangent to the circle. Find PT.", f"点 P 到圆心 O 的距离为 {op} cm，半径为 {radius} cm。PT 为切线。求 PT。", f"OT ⟂ PT, so PT² = {op}²−{radius}² and PT={tangent} cm.", f"OT ⟂ PT，所以 PT² = {op}²−{radius}²，PT={tangent} cm。", 4, "Basic", "基础"),
@@ -543,13 +555,15 @@ def add_geometry_probability_statistics(q: list[dict], n: int, rng: random.Rando
     cone_r, cone_h = rng.choice([(6, 8), (5, 12), (8, 15)])
     cone_l = int((cone_r * cone_r + cone_h * cone_h) ** 0.5)
     sphere_r = rng.choice([3, 4, 5])
+    sphere_volume_num = 4 * sphere_r**3
+    sphere_volume = f"{sphere_volume_num // 3}π" if sphere_volume_num % 3 == 0 else f"{sphere_volume_num}π/3"
     small_len, large_len, small_vol = rng.choice([(2, 3, 48), (3, 5, 81), (4, 5, 128)])
     large_vol = small_vol * large_len ** 3 // small_len ** 3
     q.extend([
         item(n, topic, "Rectangular prism", "长方体", f"A rectangular prism has edges {e1}, {e2}, and {e3}. Find its volume and space diagonal.", f"长方体棱长为 {e1}、{e2}、{e3}。求体积和空间对角线。", f"Volume={e1}·{e2}·{e3}={e1*e2*e3}. Diagonal=√({e1}²+{e2}²+{e3}²)={diag}.", f"体积={e1}·{e2}·{e3}={e1*e2*e3}。空间对角线=√({e1}²+{e2}²+{e3}²)={diag}。", 4, "Basic", "基础"),
         item(n+1, topic, "Cylinder", "圆柱", f"A cylinder has radius {cyl_r} cm and height {cyl_h} cm. Find its volume.", f"圆柱半径为 {cyl_r} cm，高为 {cyl_h} cm。求体积。", f"V=πr²h=π·{cyl_r*cyl_r}·{cyl_h}={cyl_r*cyl_r*cyl_h}π cm³.", f"V=πr²h=π·{cyl_r*cyl_r}·{cyl_h}={cyl_r*cyl_r*cyl_h}π cm³。", 4, "Basic", "基础"),
         item(n+2, topic, "Cone", "圆锥", f"A cone has radius {cone_r} cm and height {cone_h} cm. Find its slant height and volume.", f"圆锥半径为 {cone_r} cm，高为 {cone_h} cm。求母线长和体积。", f"Slant height=√({cone_r}²+{cone_h}²)={cone_l}. Volume=⅓π·{cone_r*cone_r}·{cone_h}={cone_r*cone_r*cone_h//3}π cm³.", f"母线长=√({cone_r}²+{cone_h}²)={cone_l}。体积=⅓π·{cone_r*cone_r}·{cone_h}={cone_r*cone_r*cone_h//3}π cm³。", 6, "Medium", "中等"),
-        item(n+3, topic, "Sphere", "球", f"A sphere has radius {sphere_r} cm. Find its surface area and volume.", f"球半径为 {sphere_r} cm。求表面积和体积。", f"Surface area=4πr²={4*sphere_r*sphere_r}π. Volume=4/3πr³={4*sphere_r**3}π/3.", f"表面积=4πr²={4*sphere_r*sphere_r}π。体积=4/3πr³={4*sphere_r**3}π/3。", 6, "Medium", "中等"),
+        item(n+3, topic, "Sphere", "球", f"A sphere has radius {sphere_r} cm. Find its surface area and volume.", f"球半径为 {sphere_r} cm。求表面积和体积。", f"Surface area=4πr²=4π·{sphere_r}²={4*sphere_r*sphere_r}π cm². Volume=(4/3)πr³=(4/3)π·{sphere_r}³={sphere_volume} cm³.", f"表面积=4πr²=4π·{sphere_r}²={4*sphere_r*sphere_r}π cm²。体积=(4/3)πr³=(4/3)π·{sphere_r}³={sphere_volume} cm³。", 6, "Medium", "中等"),
         item(n+4, topic, "Similar solids", "相似立体", f"Two similar solids have corresponding lengths in ratio {small_len}:{large_len}. The smaller has volume {small_vol}. Find the larger volume.", f"两个相似立体对应长度比为 {small_len}:{large_len}。较小体积为 {small_vol}。求较大体积。", f"Volumes scale by the cube of the length ratio. Larger volume={small_vol}·({large_len}/{small_len})³={large_vol}.", f"体积按长度比的立方变化。较大体积={small_vol}·({large_len}/{small_len})³={large_vol}。", 8, "Stretch", "略高"),
     ]); n += 5
     # Combinatorics and probability
@@ -597,10 +611,10 @@ def add_geometry_probability_statistics(q: list[dict], n: int, rng: random.Rando
     ])
     q.extend([
         item(n, topic, "Mean", "平均数", f"Find the mean of {', '.join(map(str, mean_values))}.", f"求 {'、'.join(map(str, mean_values))} 的平均数。", f"Mean=({' + '.join(map(str, mean_values))})/{len(mean_values)}={mean:g}.", f"平均数=({' + '.join(map(str, mean_values))})/{len(mean_values)}={mean:g}。", 4, "Basic", "基础"),
-        item(n+1, topic, "Median and mode", "中位数与众数", f"Find the median and mode of {', '.join(map(str, median_data))}.", f"求 {'、'.join(map(str, median_data))} 的中位数和众数。", f"Median={median}. Mode={mode}.", f"中位数={median}。众数={mode}。", 4, "Basic", "基础"),
-        item(n+2, topic, "Weighted mean", "加权平均数", f"Scores {', '.join(map(str, scores))} have weights {', '.join(map(str, weights))}. Find the weighted mean.", f"分数 {'、'.join(map(str, scores))} 的权重分别为 {'、'.join(map(str, weights))}。求加权平均数。", f"Weighted mean={weighted_sum}/{weight_total}={weighted_sum/weight_total:g}.", f"加权平均数={weighted_sum}/{weight_total}={weighted_sum/weight_total:g}。", 6, "Medium", "中等"),
+        item(n+1, topic, "Median and mode", "中位数与众数", f"Find the median and mode of {', '.join(map(str, median_data))}.", f"求 {'、'.join(map(str, median_data))} 的中位数和众数。", f"The data are already sorted. There are {len(median_data)} values, so the median is the mean of the 3rd and 4th values: ({median_data[2]}+{median_data[3]})/2={median}. The value occurring most often is {mode}, so the mode is {mode}.", f"数据已按从小到大排列。共有 {len(median_data)} 个数，所以中位数为第 3 个和第 4 个数的平均值：({median_data[2]}+{median_data[3]})/2={median}。出现次数最多的是 {mode}，所以众数为 {mode}。", 4, "Basic", "基础"),
+        item(n+2, topic, "Weighted mean", "加权平均数", f"Scores {', '.join(map(str, scores))} have weights {', '.join(map(str, weights))}. Find the weighted mean.", f"分数 {'、'.join(map(str, scores))} 的权重分别为 {'、'.join(map(str, weights))}。求加权平均数。", f"Weighted sum={weighted_sum} and total weight={weight_total}. Therefore the weighted mean is {weighted_sum}/{weight_total}={weighted_sum/weight_total:g}.", f"加权总和为 {weighted_sum}，总权重为 {weight_total}。因此加权平均数为 {weighted_sum}/{weight_total}={weighted_sum/weight_total:g}。", 6, "Medium", "中等"),
         item(n+3, topic, "Missing value", "缺失数据", f"Five numbers have mean {missing_mean}. Four of them are {', '.join(map(str, known))}. Find the fifth number.", f"五个数的平均数为 {missing_mean}，其中四个为 {'、'.join(map(str, known))}。求第五个数。", f"The total is 5·{missing_mean}={5*missing_mean}. The known sum is {sum(known)}, so the fifth number is {missing}.", f"总和为 5·{missing_mean}={5*missing_mean}。已知四个数之和为 {sum(known)}，所以第五个数为 {missing}。", 6, "Medium", "中等"),
-        item(n+4, topic, "Frequency table", "频数表", f"Values {', '.join(map(str, freq_values))} occur with frequencies {', '.join(map(str, freq_known))}, k. If the mean is {freq_mean}, find k.", f"数值 {'、'.join(map(str, freq_values))} 的频数分别为 {'、'.join(map(str, freq_known))}、k。若平均数为 {freq_mean}，求 k。", f"Substitute the values into the weighted mean equation and solve; this gives k={kval}.", f"代入加权平均数方程并求解，得 k={kval}。", 8, "Stretch", "略高"),
+        item(n+4, topic, "Frequency table", "频数表", f"Values {', '.join(map(str, freq_values))} occur with frequencies {', '.join(map(str, freq_known))}, k. If the mean is {freq_mean}, find k.", f"数值 {'、'.join(map(str, freq_values))} 的频数分别为 {'、'.join(map(str, freq_known))}、k。若平均数为 {freq_mean}，求 k。", f"The weighted sum is {freq_values[0]}·{freq_known[0]} + {freq_values[1]}·{freq_known[1]} + {freq_values[2]}·{freq_known[2]} + {freq_values[3]}k. The total frequency is {sum(freq_known)}+k. Set the mean equation equal to {freq_mean} and solve; this gives k={kval}, which is a valid non-negative frequency.", f"加权总和为 {freq_values[0]}·{freq_known[0]} + {freq_values[1]}·{freq_known[1]} + {freq_values[2]}·{freq_known[2]} + {freq_values[3]}k，总频数为 {sum(freq_known)}+k。令平均数方程等于 {freq_mean} 并求解，得 k={kval}，这是有效的非负频数。", 8, "Stretch", "略高"),
     ]); n += 5
     return n
 
